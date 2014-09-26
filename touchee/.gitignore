@@ -1,0 +1,8 @@
+/build/
+/target/
+/WebContent/
+/ivy.xml
+/ivysettings.xml
+/eclipse/
+/.settings/
+/.classpath
