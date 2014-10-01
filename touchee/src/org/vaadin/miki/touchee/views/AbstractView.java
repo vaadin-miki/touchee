@@ -1,5 +1,7 @@
 package org.vaadin.miki.touchee.views;
 
+import org.vaadin.miki.touchee.operations.Operation;
+
 import com.vaadin.addon.touchkit.ui.NavigationView;
 import com.vaadin.addon.touchkit.ui.Toolbar;
 import com.vaadin.ui.Button;
@@ -15,21 +17,6 @@ public class AbstractView extends NavigationView {
   private static final long serialVersionUID = 20140930L;
 
   private final Toolbar toolbar = new Toolbar();
-
-  /**
-   * Interface for operations to be broadcasted by the view.
-   *
-   * @author miki
-   *
-   */
-  public static interface Operation {
-
-    /**
-     * Operation was triggered.
-     *
-     */
-    public void perform();
-  }
 
   /**
    * Constructs the view and initialises the toolbar.
