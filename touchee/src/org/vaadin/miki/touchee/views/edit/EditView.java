@@ -7,10 +7,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.vaadin.miki.form.FormBuilder;
-import org.vaadin.miki.touchee.views.AbstractView;
+import org.vaadin.miki.touchee.views.ToucheeView;
 
 import com.vaadin.data.fieldgroup.FieldGroup;
-import com.vaadin.ui.Button;
+import com.vaadin.event.Action;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Notification;
@@ -21,31 +21,11 @@ import com.vaadin.ui.Notification;
  * @author miki
  *
  */
-public class EditView extends AbstractView {
+public class EditView extends ToucheeView {
 
   private static final long serialVersionUID = 20140923;
 
   private FormBuilder formBuilder;
-
-  private final Button commit = new Button("Save", new Button.ClickListener() {
-
-    private static final long serialVersionUID = 20140925;
-
-    @Override
-    public void buttonClick(Button.ClickEvent event) {
-      EditView.this.commit();
-    }
-  });
-
-  private final Button cancel = new Button("Cancel", new Button.ClickListener() {
-
-    private static final long serialVersionUID = 20140925;
-
-    @Override
-    public void buttonClick(Button.ClickEvent event) {
-      EditView.this.discard();
-    }
-  });
 
   private FieldGroup fieldGroup;
 
@@ -72,13 +52,20 @@ public class EditView extends AbstractView {
     }
   };
 
+  /**
+   * Constructs the view.
+   */
   public EditView() {
     super();
     this.setSizeFull();
-
-    this.addButton(this.commit, this.cancel);
   }
 
+  /**
+   * Constructs the view and sets the given form builder.
+   *
+   * @param builder
+   *          Form builder to use.
+   */
   public EditView(FormBuilder builder) {
     this();
     this.setFormBuilder(builder);
@@ -88,7 +75,8 @@ public class EditView extends AbstractView {
    * Repaints the form.
    */
   protected void rebuildForm() {
-    if(this.fieldGroup != null) this.fieldGroup.removeCommitHandler(this.commitHandler);
+    if(this.fieldGroup != null)
+      this.fieldGroup.removeCommitHandler(this.commitHandler);
 
     // handle commit events
     this.fieldGroup = this.getFormBuilder().buildFieldGroup();
@@ -139,15 +127,22 @@ public class EditView extends AbstractView {
     }
   }
 
+  /**
+   * Commits the data currently in the field group.
+   */
   public void commit() {
-    if(this.fieldGroup != null) try {
-      this.fieldGroup.commit();
-    }
-    catch(FieldGroup.CommitException e) {
-      Notification.show("Error", e.getMessage(), Notification.Type.WARNING_MESSAGE);
-    }
+    if(this.fieldGroup != null)
+      try {
+        this.fieldGroup.commit();
+      }
+      catch(FieldGroup.CommitException e) {
+        Notification.show("Error", e.getMessage(), Notification.Type.WARNING_MESSAGE);
+      }
   }
 
+  /**
+   * Discards the data in the field group and synchronises them with the item.
+   */
   public void discard() {
     if(this.fieldGroup != null) {
       this.fieldGroup.discard();
@@ -162,9 +157,14 @@ public class EditView extends AbstractView {
     }
   }
 
-  public void setControlCaptions(String commit, String cancel) {
-    this.commit.setCaption(commit);
-    this.cancel.setCaption(cancel);
+  /**
+   * Clears the data in the form.
+   */
+  public void clear() {
+    if(this.fieldGroup != null) {
+      for(Field<?> f: this.fieldGroup.getFields())
+        f.setValue(null);
+    }
   }
 
   public FormBuilder getFormBuilder() {
@@ -198,6 +198,11 @@ public class EditView extends AbstractView {
 
   public void removeDiscardChangeListener(DataChangeListener listener) {
     this.discardChangeListener.remove(listener);
+  }
+
+  @Override
+  public Action[] getActions(Object target, Object sender) {
+    return new Action[0];
   }
 
 }
