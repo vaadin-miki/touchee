@@ -1,6 +1,5 @@
 package org.vaadin.miki.touchee.views.list;
 
-import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -36,6 +35,8 @@ public class ListView extends ToucheeView implements Container.Editor {
   public static final Action CHOOSE_ITEM_ACTION = new Action("!Edit");
 
   private Container container;
+
+  private boolean selectionAllowed = true;
 
   private ItemComponentGenerator itemComponentGenerator = new DefaultItemComponentGenerator();
 
@@ -82,24 +83,29 @@ public class ListView extends ToucheeView implements Container.Editor {
    * @return A component that represents the item, together with action-related components.
    */
   protected Component getItemComponent(final Object itemId, final Item item) {
-    CheckBox marked = new CheckBox();
-    marked.setValue(this.selection.contains(itemId));
-    marked.addValueChangeListener(new Property.ValueChangeListener() {
+    Toolbar row = new Toolbar();
 
-      private static final long serialVersionUID = 20140926;
+    if(this.isMarkingAllowed()) {
+      CheckBox marked = new CheckBox();
+      marked.setValue(this.selection.contains(itemId));
+      marked.addValueChangeListener(new Property.ValueChangeListener() {
 
-      @Override
-      public void valueChange(Property.ValueChangeEvent event) {
-        boolean selected = (Boolean)event.getProperty().getValue();
-        // update selection
-        if(selected)
-          ListView.this.selection.add(itemId);
-        else ListView.this.selection.remove(itemId);
+        private static final long serialVersionUID = 20140926;
 
-        ListView.this.handleAction(MARK_ITEM_ACTION, ListView.this, itemId);
+        @Override
+        public void valueChange(Property.ValueChangeEvent event) {
+          boolean selected = (Boolean)event.getProperty().getValue();
+          // update selection
+          if(selected)
+            ListView.this.selection.add(itemId);
+          else ListView.this.selection.remove(itemId);
 
-      }
-    });
+          ListView.this.handleAction(MARK_ITEM_ACTION, ListView.this, itemId);
+
+        }
+      });
+      row.addComponent(marked);
+    }
 
     Component main = this.getItemComponentGenerator().getComponent(itemId, item, false);
     main.setSizeFull();
@@ -116,27 +122,15 @@ public class ListView extends ToucheeView implements Container.Editor {
       }
     });
 
-    Toolbar row = new Toolbar();
-    row.addComponents(marked, main, select);
+    row.addComponents(main, select);
     return row;
   }
 
   /**
-   * Broadcasts the event to given listeners.
-   *
-   * @param itemId
-   *          Id of an item.
-   * @param item
-   *          Item.
-   * @param selected
-   *          Whether or not item is selected.
-   * @param listeners
-   *          Listeners to notify.
+   * Clears selection.
    */
-  protected void broadcast(Object itemId, Item item, boolean selected, Collection<ItemStateListener> listeners) {
-    ItemStateEvent event = new ItemStateEvent(itemId, item, selected);
-    for(ItemStateListener listener: listeners)
-      listener.itemStateChanged(event);
+  public void clearSelection() {
+
   }
 
   @Override
@@ -175,6 +169,26 @@ public class ListView extends ToucheeView implements Container.Editor {
     if(this.getContainerDataSource() != null && this.getContainerDataSource().containsId(target))
       return new Action[]{MARK_ITEM_ACTION, CHOOSE_ITEM_ACTION};
     else return new Action[0];
+  }
+
+  /**
+   * Checks whether marking items is allowed.
+   * 
+   * @return <b>true</b> when marking items is allowed (default), <b>false</b> otherwise.
+   */
+  public boolean isMarkingAllowed() {
+    return selectionAllowed;
+  }
+
+  /**
+   * Sets whether or not items can be marked. Rebuilds the list, does not clear the selection.
+   * 
+   * @param selectionAllowed
+   *          Whether or not marking items is allowed.
+   */
+  public void setMarkingAllowed(boolean selectionAllowed) {
+    this.selectionAllowed = selectionAllowed;
+    this.rebuildList();
   }
 
 }
