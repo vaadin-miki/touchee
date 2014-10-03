@@ -181,7 +181,14 @@ public class ToucheeController implements Action.Handler {
   }
 
   private Container getUsersContainer() {
-    BeanItemContainer<User> container = new BeanItemContainer<User>(User.class);
+    BeanItemContainer<User> container = new BeanItemContainer<User>(User.class) {
+      @Override
+      public Object addItem() throws UnsupportedOperationException {
+        User user = new User();
+        this.addBean(user);
+        return user;
+      }
+    };
     String[] fakeUserData = new String[]{"foo@vaadin.com", "miki@vaadin.com", "vaadin@example.org"};
     for(String string: fakeUserData) {
       User user = new User();
