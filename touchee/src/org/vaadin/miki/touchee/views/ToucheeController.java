@@ -33,6 +33,8 @@ public class ToucheeController implements Action.Handler {
   private static final Action COMMIT = new Action("Save");
   private static final Action RESTORE = new Action("Undo");
   private static final Action CLOSE = new Action("Leave");
+  private static final Action NEW_ITEM = new Action("New");
+  private static final Action DELETE = new Action("Delete marked");
 
   private final NavigationManager manager = new NavigationManager();
 
@@ -98,6 +100,23 @@ public class ToucheeController implements Action.Handler {
       }
     });
 
+    this.actionHandlers.put(DELETE, new Action.Handler() {
+
+      private static final long serialVersionUID = 20141003;
+
+      @Override
+      public void handleAction(Action action, Object sender, Object target) {
+        ListView view = (ListView)sender;
+        for(Object itemId: view.getMarkedItems())
+          view.getContainerDataSource().removeItem(itemId);
+      }
+
+      @Override
+      public Action[] getActions(Object target, Object sender) {
+        return new Action[]{DELETE};
+      }
+    });
+
     this.actionHandlers.put(COMMIT, new Action.Handler() {
 
       private static final long serialVersionUID = 20141003;
@@ -143,6 +162,22 @@ public class ToucheeController implements Action.Handler {
         return new Action[]{ListView.CHOOSE_ITEM_ACTION};
       }
     });
+
+    this.actionHandlers.put(NEW_ITEM, new Action.Handler() {
+      private static final long serialVersionUID = 20141003;
+
+      @Override
+      public void handleAction(Action action, Object sender, Object target) {
+        ListView list = (ListView)sender;
+        Object itemId = list.getContainerDataSource().addItem();
+        manager.navigateTo(createEditView((BeanItem<?>)list.getContainerDataSource().getItem(itemId)));
+      }
+
+      @Override
+      public Action[] getActions(Object target, Object sender) {
+        return new Action[]{NEW_ITEM};
+      }
+    });
   }
 
   private Container getUsersContainer() {
@@ -164,6 +199,7 @@ public class ToucheeController implements Action.Handler {
 
   private Component createListView() {
     ListView view = new ListView();
+    view.addAction(NEW_ITEM, DELETE);
     view.setCaption("Listing users");
     view.addActionHandler(this);
     view.setContainerDataSource(this.usersContainer);

@@ -1,5 +1,6 @@
 package org.vaadin.miki.touchee.views.list;
 
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -9,6 +10,8 @@ import com.vaadin.addon.touchkit.ui.NavigationButton;
 import com.vaadin.addon.touchkit.ui.Toolbar;
 import com.vaadin.addon.touchkit.ui.VerticalComponentGroup;
 import com.vaadin.data.Container;
+import com.vaadin.data.Container.ItemSetChangeEvent;
+import com.vaadin.data.Container.PropertySetChangeEvent;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.event.Action;
@@ -43,6 +46,26 @@ public class ListView extends ToucheeView implements Container.Editor {
   private final VerticalComponentGroup layout = new VerticalComponentGroup();
 
   private final Set<Object> selection = new LinkedHashSet<Object>();
+
+  private final Container.ItemSetChangeListener itemListener = new Container.ItemSetChangeListener() {
+
+    private static final long serialVersionUID = 20101003;
+
+    @Override
+    public void containerItemSetChange(ItemSetChangeEvent event) {
+      rebuildList();
+    }
+  };
+
+  private final Container.PropertySetChangeListener propertyListener = new Container.PropertySetChangeListener() {
+
+    private static final long serialVersionUID = 20101003;
+
+    @Override
+    public void containerPropertySetChange(PropertySetChangeEvent event) {
+      rebuildList();
+    }
+  };
 
   /**
    * Constructs the list.
@@ -133,9 +156,35 @@ public class ListView extends ToucheeView implements Container.Editor {
 
   }
 
+  /**
+   * Returns the set of currently selected item ids.
+   * 
+   * @return Currently selected item ids.
+   */
+  public Set<Object> getMarkedItems() {
+    return Collections.unmodifiableSet(this.selection);
+  }
+
   @Override
   public void setContainerDataSource(Container newDataSource) {
+    // remove old listeners
+    if(this.container != null) {
+      if(this.container instanceof Container.ItemSetChangeNotifier)
+        ((Container.ItemSetChangeNotifier)this.container).removeItemSetChangeListener(this.itemListener);
+      if(this.container instanceof Container.PropertySetChangeNotifier)
+        ((Container.PropertySetChangeNotifier)this.container).removePropertySetChangeListener(this.propertyListener);
+    }
+
     this.container = newDataSource;
+
+    // add listeners
+    if(this.container != null) {
+      if(this.container instanceof Container.ItemSetChangeNotifier)
+        ((Container.ItemSetChangeNotifier)this.container).addItemSetChangeListener(this.itemListener);
+      if(this.container instanceof Container.PropertySetChangeNotifier)
+        ((Container.PropertySetChangeNotifier)this.container).addPropertySetChangeListener(this.propertyListener);
+
+    }
     this.rebuildList();
   }
 
