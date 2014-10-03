@@ -88,7 +88,7 @@ public abstract class ToucheeView extends NavigationView implements Action.Conta
    *          Actions to be associated with the button.
    */
   public void addAction(String name, Action... actions) {
-    SequenceActionButton button = new SequenceActionButton(name, actions);
+    SequenceActionButton button = new SequenceActionButton(name, this, this, actions);
     this.addButton(button);
     this.sequenceButtons.put(name, button);
   }

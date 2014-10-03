@@ -137,7 +137,7 @@ public class EditView extends ToucheeView implements Item.Editor {
         this.fieldGroup.commit();
       }
       catch(FieldGroup.CommitException e) {
-        Notification.show("Error", e.getMessage(), Notification.Type.WARNING_MESSAGE);
+        throw new RuntimeException(e);
       }
   }
 

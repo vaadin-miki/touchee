@@ -5,8 +5,6 @@ import java.util.Map;
 
 import org.vaadin.miki.form.bean.BeanFormBuilder;
 import org.vaadin.miki.touchee.data.User;
-import org.vaadin.miki.touchee.views.edit.DataChangeEvent;
-import org.vaadin.miki.touchee.views.edit.DataChangeListener;
 import org.vaadin.miki.touchee.views.edit.EditView;
 import org.vaadin.miki.touchee.views.list.ItemStateEvent;
 import org.vaadin.miki.touchee.views.list.ItemStateListener;
@@ -40,6 +38,9 @@ public class ToucheeController implements Action.Handler {
 
   private static final Action LOG_IN = new Action("Log in");
   private static final Action CLEAR = new Action("Clear");
+  private static final Action COMMIT = new Action("Save");
+  private static final Action RESTORE = new Action("Undo");
+  private static final Action CLOSE = new Action("Leave");
 
   /**
    * Constructs the controller for given UI.
@@ -83,6 +84,49 @@ public class ToucheeController implements Action.Handler {
       }
     });
 
+    this.actionHandlers.put(CLOSE, new Action.Handler() {
+      private static final long serialVersionUID = 20141003;
+
+      @Override
+      public void handleAction(Action action, Object sender, Object target) {
+        manager.navigateBack();
+      }
+
+      @Override
+      public Action[] getActions(Object target, Object sender) {
+        return new Action[]{CLOSE};
+      }
+    });
+
+    this.actionHandlers.put(COMMIT, new Action.Handler() {
+
+      private static final long serialVersionUID = 20141003;
+
+      @Override
+      public void handleAction(Action action, Object sender, Object target) {
+        ((EditView)sender).commit();
+      }
+
+      @Override
+      public Action[] getActions(Object target, Object sender) {
+        return new Action[]{COMMIT};
+      }
+    });
+
+    this.actionHandlers.put(RESTORE, new Action.Handler() {
+
+      private static final long serialVersionUID = 20141003;
+
+      @Override
+      public void handleAction(Action action, Object sender, Object target) {
+        ((EditView)sender).discard();
+      }
+
+      @Override
+      public Action[] getActions(Object target, Object sender) {
+        return new Action[]{RESTORE};
+      }
+    });
   }
 
   private Container getUsersContainer() {
@@ -122,14 +166,9 @@ public class ToucheeController implements Action.Handler {
   private Component createEditView(Object object) {
     EditView view = new EditView(new BeanFormBuilder<Object>(object, "edit"));
 
-    view.addDiscardChangeListener(new DataChangeListener() {
-
-      @Override
-      public void dataChanged(DataChangeEvent event) {
-        ToucheeController.this.manager.navigateBack();
-      }
-    });
-
+    view.addAction("Save", COMMIT, CLOSE);
+    view.addAction(RESTORE, CLOSE);
+    view.addActionHandler(this);
     return view;
   }
 

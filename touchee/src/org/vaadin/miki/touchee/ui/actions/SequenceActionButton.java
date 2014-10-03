@@ -8,9 +8,11 @@ import java.util.List;
 
 import com.vaadin.event.Action;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Notification;
 
 /**
- * A button that, when clicked, invokes a series of actions on the passed handler.
+ * A button that, when clicked, invokes a series of actions on the passed handler. Any exception (including runtime exceptions) that occurs during handling one
+ * of the actions in the sequence stops the sequence and a notification is shown.
  *
  * @author miki
  *
@@ -35,12 +37,49 @@ public class SequenceActionButton extends AbstractActionButton {
     this.actions.addAll(Arrays.asList(actions));
   }
 
+  /**
+   * Creates a button with given caption, handler and associated actions.
+   * 
+   * @param caption
+   *          Caption of the button.
+   * @param handler
+   *          Handler to delegate clicks to.
+   * @param actions
+   *          Actions to perform when the button is clicked.
+   */
+  public SequenceActionButton(String caption, Action.Handler handler, Action... actions) {
+    this(caption, actions);
+    this.setHandler(handler);
+  }
+
+  /**
+   * Creates a button with given caption, handler and associated actions.
+   * 
+   * @param caption
+   *          Caption of the button.
+   * @param handler
+   *          Handler to delegate clicks to.
+   * @param sender
+   *          Sender of the action, to be passed to the handler.
+   * @param actions
+   *          Actions to perform when the button is clicked.
+   */
+  public SequenceActionButton(String caption, Action.Handler handler, Object sender, Action... actions) {
+    this(caption, handler, actions);
+    this.setSender(sender);
+  }
+
   @Override
   public void buttonClick(Button.ClickEvent event) {
     if(this.getHandler() != null && this.actions.size() > 0) {
       Object sender = this.getSender() == null ? this : this.getSender();
-      for(Action action: this.actions)
-        this.getHandler().handleAction(action, sender, this.getTarget());
+      try {
+        for(Action action: this.actions)
+          this.getHandler().handleAction(action, sender, this.getTarget());
+      }
+      catch(Exception e) {
+        Notification.show("Error", e.getMessage(), Notification.Type.ERROR_MESSAGE);
+      }
     }
   }
 
