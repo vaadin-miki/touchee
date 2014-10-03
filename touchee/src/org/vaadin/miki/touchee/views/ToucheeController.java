@@ -3,11 +3,9 @@ package org.vaadin.miki.touchee.views;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.vaadin.miki.form.bean.BeanFormBuilder;
+import org.vaadin.miki.form.annotations.AnnotationFormBuilder;
 import org.vaadin.miki.touchee.data.User;
 import org.vaadin.miki.touchee.views.edit.EditView;
-import org.vaadin.miki.touchee.views.list.ItemStateEvent;
-import org.vaadin.miki.touchee.views.list.ItemStateListener;
 import org.vaadin.miki.touchee.views.list.ListView;
 
 import com.vaadin.addon.touchkit.ui.NavigationManager;
@@ -30,17 +28,19 @@ public class ToucheeController implements Action.Handler {
 
   private static final long serialVersionUID = 20141002;
 
+  private static final Action LOG_IN = new Action("Log in");
+  private static final Action CLEAR = new Action("Clear");
+  private static final Action COMMIT = new Action("Save");
+  private static final Action RESTORE = new Action("Undo");
+  private static final Action CLOSE = new Action("Leave");
+
   private final NavigationManager manager = new NavigationManager();
 
   private final Container usersContainer = this.getUsersContainer();
 
   private final Map<Action, Action.Handler> actionHandlers = new HashMap<Action, Action.Handler>();
 
-  private static final Action LOG_IN = new Action("Log in");
-  private static final Action CLEAR = new Action("Clear");
-  private static final Action COMMIT = new Action("Save");
-  private static final Action RESTORE = new Action("Undo");
-  private static final Action CLOSE = new Action("Leave");
+  private boolean ignoringUnregisteredActions = true;
 
   /**
    * Constructs the controller for given UI.
@@ -127,6 +127,22 @@ public class ToucheeController implements Action.Handler {
         return new Action[]{RESTORE};
       }
     });
+
+    this.actionHandlers.put(ListView.CHOOSE_ITEM_ACTION, new Action.Handler() {
+      private static final long serialVersionUID = 20141003;
+
+      @Override
+      public void handleAction(Action action, Object sender, Object target) {
+        ListView view = (ListView)sender;
+        BeanItem<?> item = (BeanItem<?>)view.getContainerDataSource().getItem(target);
+        manager.navigateTo(ToucheeController.this.createEditView(item));
+      }
+
+      @Override
+      public Action[] getActions(Object target, Object sender) {
+        return new Action[]{ListView.CHOOSE_ITEM_ACTION};
+      }
+    });
   }
 
   private Container getUsersContainer() {
@@ -149,22 +165,18 @@ public class ToucheeController implements Action.Handler {
   private Component createListView() {
     ListView view = new ListView();
     view.setCaption("Listing users");
-
-    view.addItemSelectListener(new ItemStateListener() {
-
-      @Override
-      public void itemStateChanged(ItemStateEvent event) {
-        ToucheeController.this.manager.navigateTo(ToucheeController.this.createEditView(((BeanItem<?>)event.getItem()).getBean()));
-      }
-    });
-
+    view.addActionHandler(this);
     view.setContainerDataSource(this.usersContainer);
 
     return view;
   }
 
-  private Component createEditView(Object object) {
-    EditView view = new EditView(new BeanFormBuilder<Object>(object, "edit"));
+  private Component createEditView(BeanItem<?> item) {
+
+    Class<?> backend = item.getBean().getClass();
+
+    EditView view = new EditView(new AnnotationFormBuilder(backend, "edit"));
+    view.setItemDataSource(item);
 
     view.addAction("Save", COMMIT, CLOSE);
     view.addAction(RESTORE, CLOSE);
@@ -173,7 +185,8 @@ public class ToucheeController implements Action.Handler {
   }
 
   private Component createLoginView() {
-    EditView login = new EditView(new BeanFormBuilder<User>(new User(), "login"));
+    EditView login = new EditView(new AnnotationFormBuilder(User.class, "login"));
+
     login.setCaption("Log in");
 
     login.addActionHandler(this);
@@ -196,10 +209,24 @@ public class ToucheeController implements Action.Handler {
     else return new Action[0];
   }
 
+  /**
+   * Sets an action handler for a given action.
+   * 
+   * @param action
+   *          Action to handle.
+   * @param handler
+   *          Handler to forward the action to.
+   */
   public void setActionHandler(Action action, Action.Handler handler) {
     this.actionHandlers.put(action, handler);
   }
 
+  /**
+   * Removes handler for a given action.
+   * 
+   * @param action
+   *          Action to remove handler for.
+   */
   public void removeActionHandler(Action action) {
     this.actionHandlers.remove(action);
   }
@@ -208,7 +235,27 @@ public class ToucheeController implements Action.Handler {
   public void handleAction(Action action, Object sender, Object target) {
     if(this.actionHandlers.containsKey(action))
       this.actionHandlers.get(action).handleAction(action, sender, target);
-    else Notification.show("Cannot perform action", "This action (" + action.getCaption()
-        + ") cannot be performed, because no handler was registered for it in the controller, and there is no default handler.", Notification.Type.ERROR_MESSAGE);
+    else if(!this.isIgnoringUnregisteredActions())
+      Notification.show("Cannot perform action", "This action (" + action.getCaption()
+          + ") cannot be performed, because no handler was registered for it in the controller, and there is no default handler.", Notification.Type.ERROR_MESSAGE);
+  }
+
+  /**
+   * Checks whether or not unregistered actions will do nothing (<b>true</b>) or throw an exception (<b>false</b>).
+   * 
+   * @return Whether or not unregistered actions are ignored.
+   */
+  public boolean isIgnoringUnregisteredActions() {
+    return ignoringUnregisteredActions;
+  }
+
+  /**
+   * Sets the way unregistered actions are handled - ignored (<b>true</b>, default) or not (<b>false</b>).
+   * 
+   * @param ignoringUnregisteredActions
+   *          Whether or not to ignore unregistered actions.
+   */
+  public void setIgnoringUnregisteredActions(boolean ignoringUnregisteredActions) {
+    this.ignoringUnregisteredActions = ignoringUnregisteredActions;
   }
 }
