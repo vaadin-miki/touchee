@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.vaadin.miki.form.annotations.AnnotationFormBuilder;
 import org.vaadin.miki.touchee.data.User;
+import org.vaadin.miki.touchee.util.SuperBeanItemContainer;
 import org.vaadin.miki.touchee.views.edit.EditView;
 import org.vaadin.miki.touchee.views.list.ListView;
 
@@ -181,14 +182,8 @@ public class ToucheeController implements Action.Handler {
   }
 
   private Container getUsersContainer() {
-    BeanItemContainer<User> container = new BeanItemContainer<User>(User.class) {
-      @Override
-      public Object addItem() throws UnsupportedOperationException {
-        User user = new User();
-        this.addBean(user);
-        return user;
-      }
-    };
+    BeanItemContainer<User> container = new SuperBeanItemContainer<User>(User.class);
+
     String[] fakeUserData = new String[]{"foo@vaadin.com", "miki@vaadin.com", "vaadin@example.org"};
     for(String string: fakeUserData) {
       User user = new User();
