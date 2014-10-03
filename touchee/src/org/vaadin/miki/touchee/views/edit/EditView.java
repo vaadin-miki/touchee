@@ -9,6 +9,7 @@ import java.util.Map;
 import org.vaadin.miki.form.FormBuilder;
 import org.vaadin.miki.touchee.views.ToucheeView;
 
+import com.vaadin.data.Item;
 import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.event.Action;
 import com.vaadin.ui.Field;
@@ -16,12 +17,12 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Notification;
 
 /**
- * A view for editing an existing object.
+ * A view for editing an existing object. Any action initiated by this view will have the current state of the data (<tt>Map<String, Object></tt>) as a target.
  *
  * @author miki
  *
  */
-public class EditView extends ToucheeView {
+public class EditView extends ToucheeView implements Item.Editor {
 
   private static final long serialVersionUID = 20140923;
 
@@ -203,6 +204,24 @@ public class EditView extends ToucheeView {
   @Override
   public Action[] getActions(Object target, Object sender) {
     return new Action[0];
+  }
+
+  @Override
+  public void setItemDataSource(Item newDataSource) {
+    if(this.fieldGroup != null)
+      this.fieldGroup.setItemDataSource(newDataSource);
+  }
+
+  @Override
+  public Item getItemDataSource() {
+    return this.fieldGroup == null ? null : this.fieldGroup.getItemDataSource();
+  }
+
+  @Override
+  public void handleAction(Action action, Object sender, Object target) {
+    if(target == null)
+      target = this.getMapOfData(this.fieldGroup);
+    super.handleAction(action, sender, target);
   }
 
 }

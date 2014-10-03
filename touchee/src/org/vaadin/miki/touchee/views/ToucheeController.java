@@ -1,5 +1,8 @@
 package org.vaadin.miki.touchee.views;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.vaadin.miki.form.bean.BeanFormBuilder;
 import org.vaadin.miki.touchee.data.User;
 import org.vaadin.miki.touchee.views.edit.DataChangeEvent;
@@ -16,6 +19,7 @@ import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.event.Action;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.UI;
 
 /**
@@ -32,6 +36,8 @@ public class ToucheeController implements Action.Handler {
 
   private final Container usersContainer = this.getUsersContainer();
 
+  private final Map<Action, Action.Handler> actionHandlers = new HashMap<Action, Action.Handler>();
+
   private static final Action LOG_IN = new Action("Log in");
   private static final Action CLEAR = new Action("Clear");
 
@@ -44,6 +50,39 @@ public class ToucheeController implements Action.Handler {
   public ToucheeController(UI ui) {
     super();
     ui.setContent(this.manager);
+
+    this.actionHandlers.put(LOG_IN, new Action.Handler() {
+
+      private static final long serialVersionUID = 20141003;
+
+      @Override
+      public void handleAction(Action action, Object sender, Object target) {
+        Map<?, ?> map = (Map<?, ?>)target;
+        if("test".equals(map.get("username")) && "test".equals(map.get("password")))
+          manager.navigateTo(createListView());
+        else Notification.show("Invalid credentials", "Please log in as test/test", Notification.Type.WARNING_MESSAGE);
+      }
+
+      @Override
+      public Action[] getActions(Object target, Object sender) {
+        return new Action[]{LOG_IN};
+      }
+    });
+
+    this.actionHandlers.put(CLEAR, new Action.Handler() {
+      private static final long serialVersionUID = 20141003;
+
+      @Override
+      public void handleAction(Action action, Object sender, Object target) {
+        ((EditView)sender).clear();
+      }
+
+      @Override
+      public Action[] getActions(Object target, Object sender) {
+        return new Action[]{CLEAR};
+      }
+    });
+
   }
 
   private Container getUsersContainer() {
@@ -101,20 +140,6 @@ public class ToucheeController implements Action.Handler {
     login.addActionHandler(this);
     login.addAction(LOG_IN, CLEAR);
 
-    login.addAfterChangeListener(new DataChangeListener() {
-
-      @Override
-      public void dataChanged(DataChangeEvent event) {
-        @SuppressWarnings("unchecked")
-        User data = ((BeanItem<User>)event.getItem()).getBean();
-        if(!"test".equals(data.getUsername()) || !"test".equals(data.getPassword()))
-          event.reject("Please login as test/test.");
-        else {
-          VaadinSession.getCurrent().setAttribute(User.class, data);
-          ToucheeController.this.manager.navigateTo(ToucheeController.this.createListView());
-        }
-      }
-    });
     return login;
   }
 
@@ -132,9 +157,19 @@ public class ToucheeController implements Action.Handler {
     else return new Action[0];
   }
 
+  public void setActionHandler(Action action, Action.Handler handler) {
+    this.actionHandlers.put(action, handler);
+  }
+
+  public void removeActionHandler(Action action) {
+    this.actionHandlers.remove(action);
+  }
+
   @Override
   public void handleAction(Action action, Object sender, Object target) {
-    if(action == LOG_IN)
-      ;
+    if(this.actionHandlers.containsKey(action))
+      this.actionHandlers.get(action).handleAction(action, sender, target);
+    else Notification.show("Cannot perform action", "This action (" + action.getCaption()
+        + ") cannot be performed, because no handler was registered for it in the controller, and there is no default handler.", Notification.Type.ERROR_MESSAGE);
   }
 }
