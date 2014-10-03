@@ -28,19 +28,14 @@ public class ListView extends ToucheeView implements Container.Editor {
 
   private static final long serialVersionUID = 20140925;
 
-  /**
-   * Action for selecting an item. This action is internally called by the view, do not add it.
-   */
-  public static final Action MARK_ITEM_ACTION = new Action("!Select");
-  /**
-   * Action for choosing an item. This action is internally called by the view, do not add it.
-   */
-  public static final Action CHOOSE_ITEM_ACTION = new Action("!Edit");
-
   private Container container;
 
   private boolean selectionAllowed = true;
 
+  private Action markAction;
+  
+  private Action chooseAction;
+  
   private ItemComponentGenerator itemComponentGenerator = new DefaultItemComponentGenerator();
 
   private final VerticalComponentGroup layout = new VerticalComponentGroup();
@@ -123,7 +118,8 @@ public class ListView extends ToucheeView implements Container.Editor {
             ListView.this.selection.add(itemId);
           else ListView.this.selection.remove(itemId);
 
-          ListView.this.handleAction(MARK_ITEM_ACTION, ListView.this, itemId);
+          if(getMarkAction() != null)
+            ListView.this.handleAction(getMarkAction(), ListView.this, itemId);
 
         }
       });
@@ -141,7 +137,8 @@ public class ListView extends ToucheeView implements Container.Editor {
       @Override
       public void buttonClick(NavigationButton.NavigationButtonClickEvent event) {
 
-        ListView.this.handleAction(CHOOSE_ITEM_ACTION, ListView.this, itemId);
+    	if(getChooseAction() != null)
+          ListView.this.handleAction(getChooseAction(), ListView.this, itemId);
       }
     });
 
@@ -216,7 +213,7 @@ public class ListView extends ToucheeView implements Container.Editor {
   @Override
   public Action[] getActions(Object target, Object sender) {
     if(this.getContainerDataSource() != null && this.getContainerDataSource().containsId(target))
-      return new Action[]{MARK_ITEM_ACTION, CHOOSE_ITEM_ACTION};
+      return new Action[]{this.getMarkAction(), this.getChooseAction()};
     else return new Action[0];
   }
 
@@ -239,5 +236,21 @@ public class ListView extends ToucheeView implements Container.Editor {
     this.selectionAllowed = selectionAllowed;
     this.rebuildList();
   }
+
+public Action getMarkAction() {
+	return markAction;
+}
+
+public void setMarkAction(Action markAction) {
+	this.markAction = markAction;
+}
+
+public Action getChooseAction() {
+	return chooseAction;
+}
+
+public void setChooseAction(Action chooseAction) {
+	this.chooseAction = chooseAction;
+}
 
 }

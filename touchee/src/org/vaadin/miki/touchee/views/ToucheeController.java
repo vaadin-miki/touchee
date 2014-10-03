@@ -36,6 +36,15 @@ public class ToucheeController implements Action.Handler {
   private static final Action CLOSE = new Action("Leave");
   private static final Action NEW_ITEM = new Action("New");
   private static final Action DELETE = new Action("Delete marked");
+  /**
+   * Action for selecting an item. This action is internally called by the view, do not add it.
+   */
+  public static final Action MARK_ITEM_ACTION = new Action("!Select");
+  /**
+   * Action for choosing an item. This action is internally called by the view, do not add it.
+   */
+  public static final Action CHOOSE_ITEM_ACTION = new Action("!Edit");
+
 
   private final NavigationManager manager = new NavigationManager();
 
@@ -148,7 +157,7 @@ public class ToucheeController implements Action.Handler {
       }
     });
 
-    this.actionHandlers.put(ListView.CHOOSE_ITEM_ACTION, new Action.Handler() {
+    this.actionHandlers.put(CHOOSE_ITEM_ACTION, new Action.Handler() {
       private static final long serialVersionUID = 20141003;
 
       @Override
@@ -160,7 +169,7 @@ public class ToucheeController implements Action.Handler {
 
       @Override
       public Action[] getActions(Object target, Object sender) {
-        return new Action[]{ListView.CHOOSE_ITEM_ACTION};
+        return new Action[]{CHOOSE_ITEM_ACTION};
       }
     });
 
@@ -199,8 +208,18 @@ public class ToucheeController implements Action.Handler {
   // the list view (to be done)
   public void configure() {}
 
+  private Component createOverview() {
+	  ListView view = new ListView();
+	  view.setMarkingAllowed(false);
+	  view.setCaption("Overview");
+	  view.addActionHandler(this);
+	  return view;
+  }
+  
   private Component createListView() {
     ListView view = new ListView();
+    view.setMarkAction(MARK_ITEM_ACTION);
+    view.setChooseAction(CHOOSE_ITEM_ACTION);
     view.addAction(NEW_ITEM, DELETE);
     view.setCaption("Listing users");
     view.addActionHandler(this);
