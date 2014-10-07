@@ -36,6 +36,11 @@ public @interface FormField {
   public String[] info() default {};
 
   /**
+   * Information about validators.
+   */
+  public ValidateWith[] validate() default {};
+
+  /**
    * Default form identifier.
    */
   public static final String DEFAULT_FORM_ID = "";

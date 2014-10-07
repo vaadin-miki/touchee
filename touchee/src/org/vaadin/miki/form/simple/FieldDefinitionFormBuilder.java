@@ -11,6 +11,7 @@ import org.vaadin.miki.form.FormBuilder;
 import org.vaadin.miki.form.FormBuilderFieldFactory;
 
 import com.vaadin.data.Item;
+import com.vaadin.data.Validator;
 import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.ui.Field;
 
@@ -59,6 +60,8 @@ public class FieldDefinitionFormBuilder implements FormBuilder {
       Field<?> field = this.getFieldFactory().buildField(definition.getValueType(), definition.getIdentifier(), definition.getFieldCaption(),
           definition.getAdditionalInformation().toArray());
       result.bind(field, definition.getPropertyId());
+      for(Validator validator: definition.getValidators())
+        field.addValidator(validator);
     }
     return result;
   }

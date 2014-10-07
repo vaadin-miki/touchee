@@ -4,6 +4,9 @@ import java.util.Date;
 
 import org.vaadin.miki.form.FieldInformation;
 import org.vaadin.miki.form.annotations.FormField;
+import org.vaadin.miki.form.annotations.ValidateWith;
+
+import com.vaadin.data.validator.EmailValidator;
 
 /**
  * User class - a representation of a user and a base for logging in.
@@ -19,7 +22,7 @@ public class User {
   @FormField(form = "login", info = {FieldInformation.PASSWORD, FieldInformation.REQUIRED})
   private String password;
 
-  @FormField(form = "edit")
+  @FormField(form = "edit", validate = {@ValidateWith(validator = EmailValidator.class, parameters = "Invalid format of email address.")})
   private String email;
 
   @FormField(form = "edit")
