@@ -7,6 +7,7 @@ import java.lang.annotation.Target;
 
 /**
  * Pre-Java8 annotation for a field that appears in multiple forms.
+ * 
  * @author miki
  *
  */
@@ -14,6 +15,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface FormFields {
 
-	public FormField[] fields();
-	
+  /**
+   * Definition of different form fields.
+   */
+  public FormField[] fields();
+
 }

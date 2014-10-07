@@ -16,10 +16,22 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.ui.UI;
 
+/**
+ * Touchee Demo App.
+ * 
+ * @author miki
+ *
+ */
 @SuppressWarnings("serial")
 @Theme("touchcrud")
 public class TouchKitCrudUI extends UI {
 
+  /**
+   * Vaadin servlet.
+   * 
+   * @author miki
+   *
+   */
   @WebServlet(value = "/*", asyncSupported = true)
   @VaadinServletConfiguration(productionMode = false, ui = TouchKitCrudUI.class, widgetset = "org.vaadin.miki.touchee.widgetset.ToucheeWidgetset")
   public static class Servlet extends VaadinServlet {}

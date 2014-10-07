@@ -222,8 +222,8 @@ public class ToucheeController implements Action.Handler {
 
   private Component createOverview() {
     ListView view = new ListView();
-    view.setMarkingAllowed(false);
     view.setCaption("Overview");
+    view.setMarkAction(null);
     view.setChooseAction(CHOOSE_CONTAINER_ACTION);
     view.addActionHandler(this);
     view.setContainerDataSource(this.containers);
@@ -232,8 +232,10 @@ public class ToucheeController implements Action.Handler {
 
   private Component createListView(ContainerDefinition metaData) {
     ListView view = new ListView();
-    view.setMarkAction(MARK_ITEM_ACTION);
-    view.setChooseAction(CHOOSE_ITEM_ACTION);
+    if(metaData.isEditingAllowed()) {
+      view.setMarkAction(MARK_ITEM_ACTION);
+      view.setChooseAction(CHOOSE_ITEM_ACTION);
+    }
     if(metaData.isAddingAllowed())
       view.addAction(NEW_ITEM);
     if(metaData.isDeletingAllowed())
@@ -269,6 +271,9 @@ public class ToucheeController implements Action.Handler {
     return login;
   }
 
+  /**
+   * Navigates to the start view. If a user is already logged in, it is the overview. Otherwise, it is the login screen.
+   */
   public void navigateToStart() {
     if(VaadinSession.getCurrent().getAttribute(User.class) == null)
       this.manager.navigateTo(this.createLoginView());

@@ -5,50 +5,100 @@ import java.util.Date;
 import org.vaadin.miki.form.FieldInformation;
 import org.vaadin.miki.form.annotations.FormField;
 
+/**
+ * User class - a representation of a user and a base for logging in.
+ * 
+ * @author miki
+ *
+ */
 public class User {
 
-	@FormField(info=FieldInformation.REQUIRED)
-	private String username;
-	
-	@FormField(form="login", info={FieldInformation.PASSWORD, FieldInformation.REQUIRED})
-	private String password;
-	
-	@FormField(form="edit")
-	private String email;
-	
-	@FormField(form="edit")
-	private Date dateOfBirth;
+  @FormField(info = FieldInformation.REQUIRED)
+  private String username;
 
-	public String getUsername() {
-		return username;
-	}
+  @FormField(form = "login", info = {FieldInformation.PASSWORD, FieldInformation.REQUIRED})
+  private String password;
 
-	public void setUsername(String username) {
-		this.username = username;
-	}
+  @FormField(form = "edit")
+  private String email;
 
-	public String getPassword() {
-		return password;
-	}
+  @FormField(form = "edit")
+  private Date dateOfBirth;
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+  /**
+   * Returns username.
+   * 
+   * @return Name of the user.
+   */
+  public String getUsername() {
+    return username;
+  }
 
-	public String getEmail() {
-		return email;
-	}
+  /**
+   * Sets the username.
+   * 
+   * @param username
+   *          New username.
+   */
+  public void setUsername(String username) {
+    this.username = username;
+  }
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+  /**
+   * Returns current password.
+   * 
+   * @return Current password, not encrypted.
+   */
+  public String getPassword() {
+    return password;
+  }
 
-	public Date getDateOfBirth() {
-		return dateOfBirth;
-	}
+  /**
+   * Sets the new password.
+   * 
+   * @param password
+   *          Password to set.
+   */
+  public void setPassword(String password) {
+    this.password = password;
+  }
 
-	public void setDateOfBirth(Date dateOfBirth) {
-		this.dateOfBirth = dateOfBirth;
-	}
-	
+  /**
+   * Returns user's email address.
+   * 
+   * @return Email address.
+   */
+  public String getEmail() {
+    return email;
+  }
+
+  /**
+   * Sets the email address of the user.
+   * 
+   * @param email
+   *          Email address to use.
+   */
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  /**
+   * Returns the date of birth.
+   * 
+   * @return Date of birth.
+   */
+  public Date getDateOfBirth() {
+    return dateOfBirth;
+  }
+
+  /**
+   * Sets the date of birth.
+   * 
+   * @param dateOfBirth
+   *          New date of birth.
+   */
+  public void setDateOfBirth(Date dateOfBirth) {
+    this.dateOfBirth = dateOfBirth;
+  }
+
 }
