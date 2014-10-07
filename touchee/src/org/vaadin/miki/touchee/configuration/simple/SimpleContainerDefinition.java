@@ -66,4 +66,9 @@ public class SimpleContainerDefinition implements ContainerDefinition {
     return this.deleting;
   }
 
+  @Override
+  public String toString() {
+    return this.getContainerTitle();
+  }
+
 }
