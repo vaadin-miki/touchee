@@ -251,6 +251,9 @@ public class ToucheeController implements Action.Handler {
 
     Class<?> backend = item.getBean().getClass();
 
+    AnnotationFormBuilder builder = new AnnotationFormBuilder();
+    builder.addClass(backend, "edit");
+
     EditView view = new EditView(new AnnotationFormBuilder(backend, "edit"));
     view.setItemDataSource(item);
 

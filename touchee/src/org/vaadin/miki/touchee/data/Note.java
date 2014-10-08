@@ -25,6 +25,9 @@ public class Note {
   private String body;
 
   @FormField
+  private int importance;
+
+  @FormField
   private Date publishDate;
 
   /**
@@ -141,6 +144,25 @@ public class Note {
    */
   public void setPublishDate(Date publishDate) {
     this.publishDate = publishDate;
+  }
+
+  /**
+   * Gets the importance of the note.
+   * 
+   * @return Note's importance.
+   */
+  public int getImportance() {
+    return importance;
+  }
+
+  /**
+   * Sets the note's importance.
+   * 
+   * @param importance
+   *          New note importance.
+   */
+  public void setImportance(int importance) {
+    this.importance = importance;
   }
 
 }

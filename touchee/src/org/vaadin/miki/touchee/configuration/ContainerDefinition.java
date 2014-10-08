@@ -7,7 +7,7 @@ import com.vaadin.data.Container;
 /**
  * A definition (configuration information) of a container, to be included and navigated from in a {@link ToucheeController}.
  *
- * @author Sorrow
+ * @author miki
  *
  */
 public interface ContainerDefinition {

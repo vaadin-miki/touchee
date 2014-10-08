@@ -36,7 +36,7 @@ public @interface FormField {
   public String[] info() default {};
 
   /**
-   * Information about validators.
+   * Information about validators. Those that cannot be instantiated are ignored.
    */
   public ValidateWith[] validate() default {};
 

@@ -78,6 +78,58 @@ public class AnnotationFieldDefinition implements FieldDefinition {
           e.printStackTrace();
         }
       }
+
+  }
+
+  /**
+   * Constructs an object of given type, based on passed parameters and their types.
+   * 
+   * @param type
+   *          Type of an object to create.
+   * @param parameters
+   *          Parameters to pass to the constructor.
+   * @param parameterTypes
+   *          Parameter types.
+   * @return Created object.
+   * @throws InstantiationException
+   *           When an object cannot be created via reflection.
+   * @throws IllegalAccessException
+   *           When an object cannot be created via reflection.
+   * @throws IllegalArgumentException
+   *           When an object cannot be created via reflection.
+   * @throws InvocationTargetException
+   *           When an object cannot be created via reflection.
+   * @throws NoSuchMethodException
+   *           When an object cannot be created via reflection.
+   * @throws SecurityException
+   *           When an object cannot be created via reflection.
+   */
+  protected <TYPE> TYPE construct(Class<? extends TYPE> type, String[] parameters, Class<?>[] parameterTypes) throws InstantiationException, IllegalAccessException,
+      IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+    final TYPE result;
+    if(parameters.length == 0)
+      result = type.newInstance();
+    // parameters are defined, which means they may not be strings
+    else {
+      Class<?>[] types = new Class<?>[parameters.length];
+      Object[] values = new Object[parameters.length];
+      // go through types and typecast as needed
+      for(int zmp1 = 0; zmp1 < types.length; zmp1++) {
+        // set the type
+        if(zmp1 < parameterTypes.length)
+          types[zmp1] = parameterTypes[zmp1];
+        else types[zmp1] = DEFAULT_VALIDATOR_PARAMETER_TYPE;
+        // attempt to typecast the value
+        String string = parameters[zmp1];
+        if(types[zmp1] != string.getClass())
+          values[zmp1] = types[zmp1].getMethod(TYPECASTING_METHOD_NAME, DEFAULT_VALIDATOR_PARAMETER_TYPE).invoke(null, string);
+        else values[zmp1] = string;
+      }
+      // now parameters are ready, find a constructor
+      result = type.getConstructor(types).newInstance(values);
+    }
+    return result;
+
   }
 
   /**
@@ -102,29 +154,7 @@ public class AnnotationFieldDefinition implements FieldDefinition {
   protected Validator getValidator(ValidateWith annotation) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
       NoSuchMethodException, SecurityException {
     Class<? extends Validator> validatorClass = annotation.validator();
-    final Validator validator;
-    if(annotation.parameters().length == 0)
-      validator = validatorClass.newInstance();
-    // parameters are defined, which means they are not strings
-    else {
-      Class<?>[] types = new Class<?>[annotation.parameters().length];
-      Object[] values = new Object[annotation.parameters().length];
-      // go through types and typecast as needed
-      for(int zmp1 = 0; zmp1 < types.length; zmp1++) {
-        // set the type
-        if(zmp1 < annotation.parameterTypes().length)
-          types[zmp1] = annotation.parameterTypes()[zmp1];
-        else types[zmp1] = DEFAULT_VALIDATOR_PARAMETER_TYPE;
-        // attempt to typecast the value
-        String string = annotation.parameters()[zmp1];
-        if(types[zmp1] != string.getClass())
-          values[zmp1] = types[zmp1].getMethod(TYPECASTING_METHOD_NAME, DEFAULT_VALIDATOR_PARAMETER_TYPE).invoke(null, string);
-        else values[zmp1] = string;
-      }
-      // now parameters are ready, find a constructor
-      validator = validatorClass.getConstructor(types).newInstance(values);
-    }
-    return validator;
+    return this.construct(validatorClass, annotation.parameters(), annotation.parameterTypes());
   }
 
   @Override

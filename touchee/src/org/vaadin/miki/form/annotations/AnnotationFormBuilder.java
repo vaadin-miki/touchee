@@ -133,4 +133,12 @@ public class AnnotationFormBuilder implements FormBuilder {
       this.builder.removeFieldDefinition(definition);
   }
 
+  /**
+   * Removes all classes and all field definitions.
+   */
+  public void clear() {
+    this.classes.clear();
+    this.builder.clearFieldDefinitions();
+  }
+
 }
