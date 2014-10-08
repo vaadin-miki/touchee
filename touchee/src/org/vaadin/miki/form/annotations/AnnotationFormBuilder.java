@@ -11,7 +11,6 @@ import org.vaadin.miki.form.FormBuilder;
 import org.vaadin.miki.form.FormBuilderFieldFactory;
 import org.vaadin.miki.form.simple.FieldDefinitionFormBuilder;
 
-import com.vaadin.data.Item;
 import com.vaadin.data.fieldgroup.FieldGroup;
 
 /**
@@ -21,8 +20,6 @@ import com.vaadin.data.fieldgroup.FieldGroup;
  *
  */
 public class AnnotationFormBuilder implements FormBuilder {
-
-  private static final long serialVersionUID = 20140924;
 
   private final FieldDefinitionFormBuilder builder = new FieldDefinitionFormBuilder();
 
@@ -57,16 +54,6 @@ public class AnnotationFormBuilder implements FormBuilder {
   public AnnotationFormBuilder(Class<?> backend, String formId) {
     this();
     this.addClass(backend, formId);
-  }
-
-  @Override
-  public void setItemDataSource(Item newDataSource) {
-    this.builder.setItemDataSource(newDataSource);
-  }
-
-  @Override
-  public Item getItemDataSource() {
-    return this.builder.getItemDataSource();
   }
 
   @Override

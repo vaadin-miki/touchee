@@ -10,23 +10,18 @@ import org.vaadin.miki.form.FieldDefinition;
 import org.vaadin.miki.form.FormBuilder;
 import org.vaadin.miki.form.FormBuilderFieldFactory;
 
-import com.vaadin.data.Item;
 import com.vaadin.data.Validator;
 import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.ui.Field;
 
 /**
  * Form builder that generates a {@link FieldGroup} with fields of corresponding type, based on a given {@link FieldDefinition}s and
- * {@link FormBuilderFieldFactory}. Fields can optionally be bound to an item data source.
+ * {@link FormBuilderFieldFactory}.
  * 
  * @author miki
  *
  */
 public class FieldDefinitionFormBuilder implements FormBuilder {
-
-  private static final long serialVersionUID = 20140924;
-
-  private Item dataSource;
 
   private final ArrayList<FieldDefinition> fieldDefinitions = new ArrayList<FieldDefinition>();
 
@@ -40,22 +35,19 @@ public class FieldDefinitionFormBuilder implements FormBuilder {
   }
 
   /**
-   * Constructs the form builder with given item and definitions.
+   * Constructs the form builder with given definitions.
    * 
-   * @param item
-   *          Item to bind.
    * @param definitions
    *          Field definitions.
    */
-  public FieldDefinitionFormBuilder(Item item, FieldDefinition... definitions) {
+  public FieldDefinitionFormBuilder(FieldDefinition... definitions) {
     this();
     this.setFieldDefinitions(Arrays.asList(definitions));
-    this.setItemDataSource(item);
   }
 
   @Override
   public FieldGroup buildFieldGroup() {
-    FieldGroup result = new FieldGroup(this.getItemDataSource());
+    FieldGroup result = new FieldGroup();
     for(FieldDefinition definition: this.getFieldDefinitions()) {
       Field<?> field = this.getFieldFactory().buildField(definition.getValueType(), definition.getIdentifier(), definition.getFieldCaption(),
           definition.getAdditionalInformation().toArray());
@@ -64,16 +56,6 @@ public class FieldDefinitionFormBuilder implements FormBuilder {
         field.addValidator(validator);
     }
     return result;
-  }
-
-  @Override
-  public void setItemDataSource(Item newDataSource) {
-    this.dataSource = newDataSource;
-  }
-
-  @Override
-  public Item getItemDataSource() {
-    return this.dataSource;
   }
 
   @Override

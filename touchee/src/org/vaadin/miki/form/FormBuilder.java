@@ -1,20 +1,19 @@
 package org.vaadin.miki.form;
 
-import com.vaadin.data.Item;
 import com.vaadin.data.fieldgroup.FieldGroup;
 
 /**
- * Interface for form builders. In fact, they build {@link FieldGroup}s based on {@link FieldDefinition}s, with an option to bind those fields to the data
- * source by setting it through {@link com.vaadin.data.Item.Editor#setItemDataSource(Item)}.
+ * Interface for form builders. In fact, they build {@link FieldGroup}s based on {@link FieldDefinition}s. The resulting field group, obtainable with
+ * {@link #buildFieldGroup()}, should be used to bind it to data.
  * 
  * @author miki
  *
  */
-public interface FormBuilder extends Item.Editor {
+public interface FormBuilder {
 
   /**
    * Builds form components based on the current state of the builder. A field factory provided through {@link #setFieldFactory(FormBuilderFieldFactory)} will
-   * be used to construct fields. If an item data source is set (through { {@link #setItemDataSource(Item)}), matching fields are bound to that item properties.
+   * be used to construct fields. Matching fields are unbound to any particular item, though they are bound to property ids.
    * 
    * @return {@link FieldGroup} with fields.
    */
